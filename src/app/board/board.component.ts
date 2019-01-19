@@ -91,8 +91,8 @@ export class BoardComponent implements OnInit {
     console.log(JSON.stringify(data));
     let url = "https://angular-http-guide.firebaseio.com/courses.json";
     this.http.post(url, JSON.stringify(data), options).subscribe(
-        (t) => console.log(t));
-
+        (t) => console.log(t)
+    );
   }
 
   locatedShip(tileID,shipSize,orientation){
