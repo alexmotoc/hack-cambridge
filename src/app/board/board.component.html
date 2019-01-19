@@ -1,9 +1,12 @@
 
 <div class="side-menu">
+  <button (click)="restartGame()">Restart</button>
+
   <div class="ship"
     *ngFor="let ship of ships"
     [style.width.px]="ship.width"
     [style.height.px]="ship.height"
+    (click)="selectShip(ship)"
     (dblclick)="rotate(ship)">
     <div [style.transform]="'rotate(' + getRotationAngle(ship) + 'deg)'">
       {{ship.type}}
@@ -13,7 +16,7 @@
 
 <div class="board">
   <mat-grid-list cols=10 rowHeight=50>
-    <mat-grid-tile colspan=1 rowspan=1 [style.background]="item.color" *ngFor="let item of tileList; index as i;">
+    <mat-grid-tile colspan=1 rowspan=1 [style.background]="item.color" *ngFor="let item of tileList; index as i;" (click)="selectTile(item)">
     </mat-grid-tile>
   </mat-grid-list>
 </div>

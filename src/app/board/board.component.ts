@@ -10,8 +10,19 @@ export class BoardComponent implements OnInit {
 
   private tileList: Tile[] = [];
   ships: Ship[];
+  placedShips: Ship[] = [];
+
+  selectedShip: Ship;
+  selectedTile: Tile;
+
+  // hits: Bomb[] = [];
 
   constructor() {
+    this.restartGame();
+  }
+
+  restartGame(){
+    this.tileList = [];
     for (let i = 0; i < 10*10; i++) {
          const data = new Tile(i,0);
          this.tileList.push(data);
@@ -24,13 +35,83 @@ export class BoardComponent implements OnInit {
       new Ship("Submarine", 3, 1),
       new Ship("Destroyer", 2, 1)
     ];
+
+    // this.hits = [];
+    this.placedShips = [];
+  }
+
+
+  selectShip(ship){
+    this.selectedShip = ship;
+  }
+
+  selectTile(tile){
+    this.selectedTile = tile;
+    if(this.tryDrop(tile.getId(),this.selectedShip.size, this.selectedShip.orientation)){
+      console.log("Valid");
+      this.selectedShip.head = tile.getId();
+      this.placedShips.push(this.selectedShip);
+      this.ships = this.ships.filter(obj => obj.type !== this.selectedShip.type);
+      this.locatedShip(tile.getId(),this.selectedShip.size, this.selectedShip.orientation);
+
+    }
+    else
+      console.log("Invalid");
+  }
+
+  getHit(id){
+    this.tileList[id].val = 2;
+    this.placedShips.forEach(function(ship) {
+      if(orientation==1 && ship.head<=id && id<ship.head+ship.size &&ship.remainingTiles>0){
+        console.log("WE'VE BEEN HIT!");
+        ship.remainingTiles--;
+      }
+      if(orientation==2 && ship.head%10==id%10 && ship.head/10<=id && id<ship.head/10+ship.size){
+        console.log("WE've BEEN HIT!");
+        ship.remainingTiles--;
+      }
+    });
+  }
+
+  locatedShip(tileID,shipSize,orientation){
+
+    if(orientation == 1){//horisontal to the right
+          for(let i = tileID; i<tileID+shipSize; i++){
+            this.tileList[i].val = 1;
+            this.tileList[i].color = "grey";
+          }
+    }
+    if(orientation == 2){//vertical downwards
+          let i = tileID;
+          for(let cnt = 0; cnt<shipSize; cnt++ ){
+            this.tileList[i].val = 1;
+            this.tileList[i].color = "grey";
+            i+=10;
+          }
+    }
+/*    if(orientation == 3){//horisontal to the left
+        for(let i=tileID; i>tileID-shipSize; i--){
+            this.tileList[i].val = 1;
+            this.tileList[i].color = "grey";
+          }
+    }
+    if(orientation == 0){ // vertical upwards
+        let i = tileID;
+        for(let cnt = 0; cnt<shipSize;cnt++){
+          this.tileList[i].val = 1;
+          this.tileList[i].color = "grey";
+          i-=10;
+        }
+      }*/
   }
 
   tryDrop(tileID,shipSize,orientation) {
     if(orientation == 1){//horisontal to the right
       if( ((tileID%10)+shipSize -1 < 10 )){
-          for(let i = tileID; i<tileID+shipSize; i++)
-            this.tileList[i].color = "#999393";
+          for(let i = tileID; i<tileID+shipSize; i++){
+            if(this.tileList[i].val != 0 )
+              return false;
+          }
           return true;
       } else
         return false;
@@ -39,17 +120,19 @@ export class BoardComponent implements OnInit {
       if( tileID/10+shipSize < 10){
           let i = tileID;
           for(let cnt = 0; cnt<shipSize; cnt++ ){
-              this.tileList[i].color = "#999393";
-              i+=10;
-            }
+            if(this.tileList[i].val != 0 )
+              return false;
+            i+=10;
+          }
           return true;
       }
       return false;
     }
-    if(orientation == 3){//horisontal to the left
+  /*  if(orientation == 3){//horisontal to the left
       if( (tileID%10)-shipSize >=0){
         for(let i=tileID; i>tileID-shipSize; i--)
-          this.tileList[i].color = "#999393";
+        if(this.tileList[i].val != 0 )
+          return false;
         return true;
       }
       return false;
@@ -58,13 +141,14 @@ export class BoardComponent implements OnInit {
       if(tileID/10 - shipSize +1 >=0){
         let i = tileID;
         for(let cnt = 0; cnt<shipSize;cnt++){
-          this.tileList[i].color="#999393";
+          if(this.tileList[i].val != 0 )
+            return false;
           i-=10;
         }
         return true;
       }
       return false;
-    }
+    }*/
     return false;
   }
 
@@ -82,20 +166,22 @@ export class BoardComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.tryDrop(9,9,3);
   }
 
 }
 
 export class Tile{
-  private id:number;
-  private val:number;
+   id:number;
+   val:number;
   public color:string;
 
   constructor(id,val) {
       this.id = id;
       this.val = val;
       this.color= "#E7DFDF";
+  }
+  getId(){
+    return this.id;
   }
 }
 
@@ -105,12 +191,16 @@ class Ship {
   size: number;
   width: number;
   height: number;
+  head: number;
+  remainingTiles: number;
 
   constructor(type: string, size: number, orientation: number) {
     this.type = type;
     this.orientation = orientation;
     this.size = size;
-    this.width = this.size * 50;
+    this.width = size * 50;
     this.height = 25;
+    this.head = -1;
+    this.remainingTiles = size;
   }
 }
