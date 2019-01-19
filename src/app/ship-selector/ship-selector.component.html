@@ -1,0 +1,14 @@
+
+<div class="ship" *ngFor="let ship of ships" [style.width.px]="ship.size * 50" cdkDrag>
+  {{ship.type}}
+</div>
+
+<!-- <mat-grid-list cols="5" rowHeight="50">
+  <mat-grid-tile
+
+    [colspan]="ship.size"
+    [rowspan]="1"
+    cdkDrag>
+    {{ship.type}}
+  </mat-grid-tile>
+</mat-grid-list> -->

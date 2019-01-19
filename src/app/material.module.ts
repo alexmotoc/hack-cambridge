@@ -1,9 +1,11 @@
 import { NgModule } from '@angular/core';
 
-import {MatButtonModule, MatGridListModule} from '@angular/material';
+import {
+  MatButtonModule,
+  MatGridListModule
+ } from '@angular/material';
 
 @NgModule({
-
   imports: [
     MatButtonModule,
     MatGridListModule

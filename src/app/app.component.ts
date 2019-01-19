@@ -1,12 +1,13 @@
-import { Component } from '@angular/core';
+import {NgModule, Component} from '@angular/core';
 import {BoardComponent} from './board/board.component';
-import {MatButtonModule, MatCheckboxModule} from '@angular/material';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
+
 export class AppComponent {
-  title = 'hack-cambridge';
+  title = 'Probabilistic Battleships';
 }
