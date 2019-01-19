@@ -48,6 +48,7 @@ export class BoardComponent implements OnInit {
 
 
   selectShip(ship){
+    ship.color = "darkblue";
     this.selectedShip = ship;
   }
 
@@ -89,7 +90,7 @@ export class BoardComponent implements OnInit {
     const options = {headers: {'Content-Type': 'application/json'}};
     let data = [new Bomb(2,1), new Bomb(20,0)];
     console.log(JSON.stringify(data));
-    let url = "https://angular-http-guide.firebaseio.com/courses.json";
+    let url = "http://localhost:8080/calculate";
     this.http.post(url, JSON.stringify(data), options).subscribe(
         (t) => console.log(t)
     );
@@ -111,20 +112,7 @@ export class BoardComponent implements OnInit {
             i+=10;
           }
     }
-/*    if(orientation == 3){//horisontal to the left
-        for(let i=tileID; i>tileID-shipSize; i--){
-            this.tileList[i].val = 1;
-            this.tileList[i].color = "grey";
-          }
-    }
-    if(orientation == 0){ // vertical upwards
-        let i = tileID;
-        for(let cnt = 0; cnt<shipSize;cnt++){
-          this.tileList[i].val = 1;
-          this.tileList[i].color = "grey";
-          i-=10;
-        }
-      }*/
+
   }
 
   tryDrop(tileID,shipSize,orientation) {
@@ -150,27 +138,6 @@ export class BoardComponent implements OnInit {
       }
       return false;
     }
-  /*  if(orientation == 3){//horisontal to the left
-      if( (tileID%10)-shipSize >=0){
-        for(let i=tileID; i>tileID-shipSize; i--)
-        if(this.tileList[i].val != 0 )
-          return false;
-        return true;
-      }
-      return false;
-    }
-    if(orientation == 0){ // vertical upwards
-      if(tileID/10 - shipSize +1 >=0){
-        let i = tileID;
-        for(let cnt = 0; cnt<shipSize;cnt++){
-          if(this.tileList[i].val != 0 )
-            return false;
-          i-=10;
-        }
-        return true;
-      }
-      return false;
-    }*/
     return false;
   }
 
@@ -216,6 +183,7 @@ class Ship {
   height: number;
   head: number;
   remainingTiles: number;
+  color:string;
 
   constructor(type: string, size: number, orientation: number) {
     this.type = type;
@@ -225,6 +193,7 @@ class Ship {
     this.height = 25;
     this.head = -1;
     this.remainingTiles = size;
+    this.color = "lightblue";
   }
 }
 
