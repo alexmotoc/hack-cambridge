@@ -9,11 +9,21 @@ import {MatGridListModule} from '@angular/material/grid-list';
 export class BoardComponent implements OnInit {
 
   private tileList: Tile[] = [];
+  ships: Ship[];
+
   constructor() {
     for (let i = 0; i < 10*10; i++) {
          const data = new Tile(i,0);
          this.tileList.push(data);
     }
+
+    this.ships = [
+      new Ship("Carrier", 5, 0),
+      new Ship("Battleship", 4, 0),
+      new Ship("Cruiser", 3, 0),
+      new Ship("Submarine", 3, 0),
+      new Ship("Destroyer", 2, 0)
+    ];
   }
 
   tryDrop(tileID,shipSize,orientation) {
@@ -73,5 +83,17 @@ export class Tile{
       this.id = id;
       this.val = val;
       this.color= "#E7DFDF";
+  }
+}
+
+class Ship {
+  type: string;
+  orientation: number;
+  size: number;
+
+  constructor(type: string, size: number, orientation: number) {
+    this.type = type;
+    this.orientation = orientation;
+    this.size = size;
   }
 }
