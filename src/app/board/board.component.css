@@ -9,6 +9,7 @@
   margin: 2%;
   padding: 5%;
   text-align: center;
+  /* transform-origin: top left */
 }
 
 .side-menu{

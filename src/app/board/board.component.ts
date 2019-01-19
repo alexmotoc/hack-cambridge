@@ -18,11 +18,11 @@ export class BoardComponent implements OnInit {
     }
 
     this.ships = [
-      new Ship("Carrier", 5, 0),
-      new Ship("Battleship", 4, 0),
-      new Ship("Cruiser", 3, 0),
-      new Ship("Submarine", 3, 0),
-      new Ship("Destroyer", 2, 0)
+      new Ship("Carrier", 5, 1),
+      new Ship("Battleship", 4, 1),
+      new Ship("Cruiser", 3, 1),
+      new Ship("Submarine", 3, 1),
+      new Ship("Destroyer", 2, 1)
     ];
   }
 
@@ -68,6 +68,19 @@ export class BoardComponent implements OnInit {
     return false;
   }
 
+  rotate(ship) {
+    ship.orientation = (ship.orientation + 1) % 2;
+
+    // Simulate rotation by swapping dimensions
+    let temp:number = ship.height;
+    ship.height = ship.width;
+    ship.width = temp;
+  }
+
+  getRotationAngle(ship) {
+    return Math.abs((ship.orientation - 1) * 90 % 180);
+  }
+
   ngOnInit() {
     this.tryDrop(9,9,3);
   }
@@ -90,10 +103,14 @@ class Ship {
   type: string;
   orientation: number;
   size: number;
+  width: number;
+  height: number;
 
   constructor(type: string, size: number, orientation: number) {
     this.type = type;
     this.orientation = orientation;
     this.size = size;
+    this.width = this.size * 50;
+    this.height = 25;
   }
 }

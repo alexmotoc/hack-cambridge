@@ -1,7 +1,13 @@
 
 <div class="side-menu">
-  <div class="ship" *ngFor="let ship of ships" [style.width.%]="ship.size * 20">
-    {{ship.type}}
+  <div class="ship"
+    *ngFor="let ship of ships"
+    [style.width.px]="ship.width"
+    [style.height.px]="ship.height"
+    (dblclick)="rotate(ship)">
+    <div [style.transform]="'rotate(' + getRotationAngle(ship) + 'deg)'">
+      {{ship.type}}
+    </div>
   </div>
 </div>
 
