@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import {MatGridListModule} from '@angular/material/grid-list';
 
+import { HttpClient } from '@angular/common/http';
+
+
 @Component({
   selector: 'app-board',
   templateUrl: './board.component.html',
@@ -15,9 +18,9 @@ export class BoardComponent implements OnInit {
   selectedShip: Ship;
   selectedTile: Tile;
 
-  // hits: Bomb[] = [];
+  hits: Bomb[] = [];
 
-  constructor() {
+  constructor(private http: HttpClient) {
     this.restartGame();
   }
 
@@ -47,6 +50,8 @@ export class BoardComponent implements OnInit {
 
   selectTile(tile){
     this.selectedTile = tile;
+    console.log(this.selectedShip);
+    console.log(this.selectedTile);
     if(this.tryDrop(tile.getId(),this.selectedShip.size, this.selectedShip.orientation)){
       console.log("Valid");
       this.selectedShip.head = tile.getId();
@@ -60,17 +65,30 @@ export class BoardComponent implements OnInit {
   }
 
   getHit(id){
+    let didHit = 0;
     this.tileList[id].val = 2;
     this.placedShips.forEach(function(ship) {
       if(orientation==1 && ship.head<=id && id<ship.head+ship.size &&ship.remainingTiles>0){
         console.log("WE'VE BEEN HIT!");
         ship.remainingTiles--;
+        didHit = 1;
       }
-      if(orientation==2 && ship.head%10==id%10 && ship.head/10<=id && id<ship.head/10+ship.size){
+      if(orientation==0 && ship.head%10==id%10 && ship.head/10<=id && id<ship.head/10+ship.size){
         console.log("WE've BEEN HIT!");
         ship.remainingTiles--;
+        didHit = 1;
       }
     });
+      this.hits.push(new Bomb(id,didHit));
+  }
+
+  getProbas(){
+    const options = {headers: {'Content-Type': 'application/json'}};
+    let data = this.hits;
+    let url = "https://angular-http-guide.firebaseio.com/courses.json";
+    this.http.get(url, JSON.stringify(data), options).subscribe(
+        (t) => console.log(t)
+);
   }
 
   locatedShip(tileID,shipSize,orientation){
@@ -81,7 +99,7 @@ export class BoardComponent implements OnInit {
             this.tileList[i].color = "grey";
           }
     }
-    if(orientation == 2){//vertical downwards
+    if(orientation == 0){//vertical downwards
           let i = tileID;
           for(let cnt = 0; cnt<shipSize; cnt++ ){
             this.tileList[i].val = 1;
@@ -116,7 +134,7 @@ export class BoardComponent implements OnInit {
       } else
         return false;
     }
-    if(orientation == 2){//vertical downwards
+    if(orientation == 0){//vertical downwards
       if( tileID/10+shipSize < 10){
           let i = tileID;
           for(let cnt = 0; cnt<shipSize; cnt++ ){
@@ -166,6 +184,7 @@ export class BoardComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.getProbas();
   }
 
 }
@@ -202,5 +221,15 @@ class Ship {
     this.height = 25;
     this.head = -1;
     this.remainingTiles = size;
+  }
+}
+
+class Bomb {
+  id: number; //where the hit was.
+  hit: number; // 1-hit, 0-miss.
+
+  constructor(id, hit){
+    this.id = id;
+    this.hit = hit;
   }
 }

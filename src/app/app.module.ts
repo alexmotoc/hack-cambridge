@@ -1,4 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 
@@ -13,6 +14,7 @@ import { BoardComponent } from './board/board.component';
   ],
   imports: [
     BrowserModule,
+    HttpClientModule,
     MaterialModule,
     DragDropModule
   ],
