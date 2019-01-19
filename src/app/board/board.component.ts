@@ -86,9 +86,9 @@ export class BoardComponent implements OnInit {
     const options = {headers: {'Content-Type': 'application/json'}};
     let data = this.hits;
     let url = "https://angular-http-guide.firebaseio.com/courses.json";
-    this.http.get(url, JSON.stringify(data), options).subscribe(
+    this.http.post(url, JSON.stringify(data), options).subscribe(
         (t) => console.log(t)
-);
+    );
   }
 
   locatedShip(tileID,shipSize,orientation){
