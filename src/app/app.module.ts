@@ -6,6 +6,8 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { AppComponent } from './app.component';
 import { MaterialModule } from './material.module';
 import { BoardComponent } from './board/board.component';
+import { MatButtonModule, MatSliderModule } from '@angular/material';
+
 
 @NgModule({
   declarations: [
@@ -16,7 +18,9 @@ import { BoardComponent } from './board/board.component';
     BrowserModule,
     HttpClientModule,
     MaterialModule,
-    DragDropModule
+    DragDropModule,
+    MatButtonModule,
+    MatSliderModule
   ],
   providers: [],
   bootstrap: [AppComponent]

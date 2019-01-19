@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {MatGridListModule} from '@angular/material/grid-list';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 
 import { HttpClient } from '@angular/common/http';
 
@@ -19,6 +20,8 @@ export class BoardComponent implements OnInit {
   selectedTile: Tile;
 
   hits: Bomb[] = [];
+  probasBoard: number[] = [];
+  showProbas: number = 0;
 
   constructor(private http: HttpClient) {
     this.restartGame();
@@ -84,11 +87,12 @@ export class BoardComponent implements OnInit {
 
   getProbas(){
     const options = {headers: {'Content-Type': 'application/json'}};
-    let data = this.hits;
+    let data = [new Bomb(2,1), new Bomb(20,0)];
+    console.log(JSON.stringify(data));
     let url = "https://angular-http-guide.firebaseio.com/courses.json";
-    this.http.get(url, JSON.stringify(data), options).subscribe(
-        (t) => console.log(t)
-);
+    this.http.post(url, JSON.stringify(data), options).subscribe(
+        (t) => console.log(t));
+
   }
 
   locatedShip(tileID,shipSize,orientation){
