@@ -1,6 +1,6 @@
 
 <div class="side-menu">
-  <button (click)="restartGame()">Restart</button>
+  <h2 class="mat-h2">Ships</h2>
 
   <div class="ship"
     *ngFor="let ship of ships"
@@ -8,10 +8,14 @@
     [style.height.px]="ship.height"
     (click)="selectShip(ship)"
     (dblclick)="rotate(ship)">
-    <div [style.transform]="'rotate(' + getRotationAngle(ship) + 'deg)'">
+    <div class="mat-body" [style.transform]="'rotate(' + getRotationAngle(ship) + 'deg)'">
       {{ship.type}}
     </div>
   </div>
+
+  <h2 class="mat-h2">Options</h2>
+  <mat-slide-toggle>Show percentages</mat-slide-toggle>
+  <button mat-raised-button color="primary" (click)="restartGame()">Restart</button>
 </div>
 
 <div class="board">

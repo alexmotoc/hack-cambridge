@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import {MatGridListModule} from '@angular/material/grid-list';
 
 import { HttpClient } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material';
 
 
 @Component({
@@ -11,7 +11,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class BoardComponent implements OnInit {
 
-  private tileList: Tile[] = [];
+  tileList: Tile[] = [];
   ships: Ship[];
   placedShips: Ship[] = [];
 
@@ -20,14 +20,19 @@ export class BoardComponent implements OnInit {
 
   hits: Bomb[] = [];
 
-  constructor(private http: HttpClient) {
+  colorMap: string[];
+
+  constructor(private http: HttpClient, public snackBar: MatSnackBar) {
     this.restartGame();
+    this.colorMap = [
+      '#ffffe0','#ffe3af','#ffc58a','#ffa474','#fa8266','#ed645c','#db4551','#c52940','#aa0e27','#8b0000'
+    ];
   }
 
   restartGame(){
     this.tileList = [];
     for (let i = 0; i < 10*10; i++) {
-         const data = new Tile(i,0);
+         const data = new Tile(i, 0, this.colorMap[0]);
          this.tileList.push(data);
     }
 
@@ -45,23 +50,30 @@ export class BoardComponent implements OnInit {
 
 
   selectShip(ship){
+    ship.color = "darkblue";
     this.selectedShip = ship;
+
+  }
+
+  openSnackBar(message: string, action: string) {
+    this.snackBar.open(message, action, {
+      duration: 2000,
+    });
   }
 
   selectTile(tile){
     this.selectedTile = tile;
-    console.log(this.selectedShip);
-    console.log(this.selectedTile);
+
     if(this.tryDrop(tile.getId(),this.selectedShip.size, this.selectedShip.orientation)){
       console.log("Valid");
       this.selectedShip.head = tile.getId();
       this.placedShips.push(this.selectedShip);
       this.ships = this.ships.filter(obj => obj.type !== this.selectedShip.type);
       this.locatedShip(tile.getId(),this.selectedShip.size, this.selectedShip.orientation);
-
     }
-    else
-      console.log("Invalid");
+    else {
+      this.openSnackBar('Invalid move! Try again!', 'Undo');
+    }
   }
 
   getHit(id){
@@ -84,11 +96,16 @@ export class BoardComponent implements OnInit {
 
   getProbas(){
     const options = {headers: {'Content-Type': 'application/json'}};
-    let data = this.hits;
-    let url = "https://angular-http-guide.firebaseio.com/courses.json";
+    let url = "http://localhost:8080/calculate";
     this.http.post(url, JSON.stringify(data), options).subscribe(
-        (t) => console.log(t)
+        (t) => this.updateTiles(t['probs'])
     );
+  }
+
+  updateTiles(probas) {
+    this.tileList.forEach(function(tile) {
+      tile.color = probas[tile.id];
+    });
   }
 
   locatedShip(tileID,shipSize,orientation){
@@ -107,20 +124,6 @@ export class BoardComponent implements OnInit {
             i+=10;
           }
     }
-/*    if(orientation == 3){//horisontal to the left
-        for(let i=tileID; i>tileID-shipSize; i--){
-            this.tileList[i].val = 1;
-            this.tileList[i].color = "grey";
-          }
-    }
-    if(orientation == 0){ // vertical upwards
-        let i = tileID;
-        for(let cnt = 0; cnt<shipSize;cnt++){
-          this.tileList[i].val = 1;
-          this.tileList[i].color = "grey";
-          i-=10;
-        }
-      }*/
   }
 
   tryDrop(tileID,shipSize,orientation) {
@@ -190,15 +193,16 @@ export class BoardComponent implements OnInit {
 }
 
 export class Tile{
-   id:number;
-   val:number;
-  public color:string;
+  id:number;
+  val:number;
+  color:string;
 
-  constructor(id,val) {
+  constructor(id, val, color) {
       this.id = id;
       this.val = val;
-      this.color= "#E7DFDF";
+      this.color = color;
   }
+
   getId(){
     return this.id;
   }
