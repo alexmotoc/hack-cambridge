@@ -15,8 +15,9 @@
   </div>
 
   <h2 class="mat-h2">Options</h2>
-  <mat-slide-toggle (change)="showprobas()">Show percentages</mat-slide-toggle>
+  <mat-slide-toggle [(checked)]="showProbas" (change)="showprobas()">Show percentages</mat-slide-toggle>
   <button mat-raised-button color="primary" (click)="restartGame()">Restart</button>
+  <button mat-raised-button color="primary" (click)="nextMove()">Move</button>
 </div>
 
 <div class="board" *ngIf="!showProbas">
@@ -28,7 +29,7 @@
 
 <div class="board" *ngIf="showProbas">
   <mat-grid-list cols=10 rowHeight=50>
-    <mat-grid-tile colspan=1 rowspan=1 [style.background]="getColour(item)" *ngFor="let item of probasBoard; index as i;" (click)="selectTile(item)">{{(item*100).toFixed(2)}}%
+    <mat-grid-tile colspan=1 rowspan=1 [style.background]="getColour(item,i)" *ngFor="let item of probasBoard; index as i;" (click)="selectTile(item)">{{(item*100).toFixed(2)}}%
     </mat-grid-tile>
   </mat-grid-list>
 </div>

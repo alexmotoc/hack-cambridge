@@ -25,6 +25,7 @@ export class BoardComponent implements OnInit {
   probasBoard: number[] = [];
   loadedProbas: number = 0;
   showProbas: boolean = false;
+  nextMoveId: number = 0;
 
   colorMap: string[];
 
@@ -52,13 +53,15 @@ export class BoardComponent implements OnInit {
 
     // this.hits = [];
     this.placedShips = [];
+    this.loadedProbas = 0;
+    this.hits = [];
+    this.showProbas = false;
+    this.probasBoard = [];
+    this.getProbas();
   }
 
   showprobas(){
     this.showProbas= !this.showProbas;
-    console.log("probas");
-    console.log(this.showProbas);
-    console.log(this.probasBoard);
   }
 
 
@@ -91,32 +94,90 @@ export class BoardComponent implements OnInit {
 
   getHit(id){
     let didHit = 0;
-    this.tileList[id].val = 2;
+    let survivingships = 0;
     this.placedShips.forEach(function(ship) {
-      if(orientation==1 && ship.head<=id && id<ship.head+ship.size &&ship.remainingTiles>0){
+      if(ship.orientation==1 && ship.head<=id && id<ship.head+ship.size &&ship.remainingTiles>0){
         console.log("WE'VE BEEN HIT!");
         ship.remainingTiles--;
+        if(ship.remainingTiles==0)
+          console.log("Ship is down!")
         didHit = 1;
       }
-      if(orientation==0 && ship.head%10==id%10 && ship.head/10<=id && id<ship.head/10+ship.size){
+      if(ship.orientation==0 && ship.head%10==id%10 && ship.head/10<=id && id<ship.head/10+ship.size){
         console.log("WE've BEEN HIT!");
         ship.remainingTiles--;
+        if(ship.remainingTiles==0)
+          console.log("Ship is down!")
         didHit = 1;
       }
+      if(ship.remainingTiles>0){
+        survivingships++;
+      }
     });
+      this.tileList[id].val = 0;
       this.hits.push(new Bomb(id,didHit));
+      if(survivingships==0){
+        console.log("All ships are down. We lost.")
+      }
+      return didHit;
+  }
+
+  attempted(id){
+    //1 if the id has already been tried
+    let pp = 0;
+    this.hits.forEach(function(bomb) {
+      if(bomb.id == id){
+        pp=1;
+      }
+    });
+    return pp;
+  }
+
+  calculateNextMove(){
+    let max = -1;
+    let imax = -1;
+    for(let i=0;i<10*10;i++){
+      if(this.probasBoard[i]>max)
+      { 
+        if(this.attempted(i)==0){
+          max = this.probasBoard[i];
+          imax = i;
+        }
+      }
+    }
+    return imax;
+  }
+
+  nextMove(){//actually perform next move
+    console.log("next move:");
+    console.log(this.nextMoveId);
+    console.log(this.getHit(this.nextMoveId));
+    this.loadedProbas = 0;
+    this.getProbas();
   }
 
   getProbas(){
     const options = {headers: {'Content-Type': 'application/json'}};
-    let data = [new Bomb(2,1), new Bomb(20,0)];
+    let data = this.hits;
     let url = "http://localhost:8080/calculate";
     this.http.post(url, JSON.stringify(data), options).subscribe(
-        (t) => {console.log(t); this.loadedProbas=1; this.probasBoard = t['probs'];}
+        (t) => { this.loadedProbas=1; this.probasBoard = t['probs']; this.nextMoveId = this.calculateNextMove();}
     );
   }
 
-  getColour(proba) {
+  getColour(proba,id) {
+    let alreadyhit = 0; //0 never tried, 1 tried and missed, 2 tried and scored
+
+    this.hits.forEach(function(bomb) {
+      if(bomb.id == id && bomb.hit==0)
+        alreadyhit = 1;
+      if(bomb.id == id && bomb.hit==1)
+        alreadyhit = 2;
+    });
+    if(alreadyhit == 1)
+      return "grey";
+    if(alreadyhit == 2)
+      return "green";
     return this.colorMap[(Math.floor(proba * 10)) % 10];
   }
 
