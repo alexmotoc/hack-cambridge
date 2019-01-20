@@ -6,6 +6,7 @@
     *ngFor="let ship of ships"
     [style.width.px]="ship.width"
     [style.height.px]="ship.height"
+    [style.background]="ship.color"
     (click)="selectShip(ship)"
     (dblclick)="rotate(ship)">
     <div class="mat-body" [style.transform]="'rotate(' + getRotationAngle(ship) + 'deg)'">

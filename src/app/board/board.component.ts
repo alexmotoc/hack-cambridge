@@ -19,6 +19,8 @@ export class BoardComponent implements OnInit {
   selectedTile: Tile;
 
   hits: Bomb[] = [];
+  probasBoard: number[] = [];
+  showProbas: number = 0;
 
   colorMap: string[];
 
@@ -96,6 +98,7 @@ export class BoardComponent implements OnInit {
 
   getProbas(){
     const options = {headers: {'Content-Type': 'application/json'}};
+    let data = [new Bomb(2,1), new Bomb(20,0)];
     let url = "http://localhost:8080/calculate";
     this.http.post(url, JSON.stringify(data), options).subscribe(
         (t) => this.updateTiles(t['probs'])
@@ -149,27 +152,6 @@ export class BoardComponent implements OnInit {
       }
       return false;
     }
-  /*  if(orientation == 3){//horisontal to the left
-      if( (tileID%10)-shipSize >=0){
-        for(let i=tileID; i>tileID-shipSize; i--)
-        if(this.tileList[i].val != 0 )
-          return false;
-        return true;
-      }
-      return false;
-    }
-    if(orientation == 0){ // vertical upwards
-      if(tileID/10 - shipSize +1 >=0){
-        let i = tileID;
-        for(let cnt = 0; cnt<shipSize;cnt++){
-          if(this.tileList[i].val != 0 )
-            return false;
-          i-=10;
-        }
-        return true;
-      }
-      return false;
-    }*/
     return false;
   }
 
@@ -216,6 +198,7 @@ class Ship {
   height: number;
   head: number;
   remainingTiles: number;
+  color:string;
 
   constructor(type: string, size: number, orientation: number) {
     this.type = type;
@@ -225,6 +208,7 @@ class Ship {
     this.height = 25;
     this.head = -1;
     this.remainingTiles = size;
+    this.color = "lightblue";
   }
 }
 
