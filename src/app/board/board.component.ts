@@ -29,6 +29,8 @@ export class BoardComponent implements OnInit {
 
   colorMap: string[];
 
+  loggedMessages: string[];
+
   constructor(private http: HttpClient) {
     this.colorMap = [
       '#ffffe0','#ffe3af','#ffc58a','#ffa474','#fa8266','#ed645c','#db4551','#c52940','#aa0e27','#8b0000'
@@ -57,6 +59,7 @@ export class BoardComponent implements OnInit {
     this.hits = [];
     this.showProbas = false;
     this.probasBoard = [];
+    this.loggedMessages = [];
     this.getProbas();
   }
 
@@ -89,25 +92,35 @@ export class BoardComponent implements OnInit {
     }
     else {
       //this.openSnackBar('Invalid move! Try again!', 'Undo');
+      this.logMessage("Invalid positioning! Try again!");
     }
+  }
+
+  getPrettyCoords(id){
+    let letters=["A","B","C","D","E","F","G","H","I","J","K","L","M"];
+    //console.log(id/10);
+    let row = letters[Math.floor(id/10)];
+    let col = id%10;
+    return "("+row+","+col+")";
   }
 
   getHit(id){
     let didHit = 0;
     let survivingships = 0;
+    let bindthis = this;
     this.placedShips.forEach(function(ship) {
       if(ship.orientation==1 && ship.head<=id && id<ship.head+ship.size &&ship.remainingTiles>0){
-        console.log("WE'VE BEEN HIT!");
+        bindthis.logMessage("We have been hit at " + bindthis.getPrettyCoords(id) + "!");
         ship.remainingTiles--;
         if(ship.remainingTiles==0)
-          console.log("Ship is down!")
+          bindthis.logMessage("Ship is down!")
         didHit = 1;
       }
       if(ship.orientation==0 && ship.head%10==id%10 && ship.head/10<=id && id<ship.head/10+ship.size){
-        console.log("WE've BEEN HIT!");
+        bindthis.logMessage("We have been hit at " + bindthis.getPrettyCoords(id) + "!");
         ship.remainingTiles--;
         if(ship.remainingTiles==0)
-          console.log("Ship is down!")
+          bindthis.logMessage("Ship is down!")
         didHit = 1;
       }
       if(ship.remainingTiles>0){
@@ -117,7 +130,7 @@ export class BoardComponent implements OnInit {
       this.tileList[id].val = 0;
       this.hits.push(new Bomb(id,didHit));
       if(survivingships==0){
-        console.log("All ships are down. We lost.")
+        this.logMessage("All ships are down. We lost.")
       }
       return didHit;
   }
@@ -133,12 +146,18 @@ export class BoardComponent implements OnInit {
     return pp;
   }
 
+  logMessage(m){
+    console.log(m);
+    this.loggedMessages.push(m);
+  }
+
   calculateNextMove(){
+    console.log("getting move");
     let max = -1;
     let imax = -1;
     for(let i=0;i<10*10;i++){
       if(this.probasBoard[i]>max)
-      { 
+      {
         if(this.attempted(i)==0){
           max = this.probasBoard[i];
           imax = i;
@@ -150,8 +169,8 @@ export class BoardComponent implements OnInit {
 
   nextMove(){//actually perform next move
     console.log("next move:");
-    console.log(this.nextMoveId);
-    console.log(this.getHit(this.nextMoveId));
+    //console.log(this.nextMoveId);
+    this.getHit(this.nextMoveId);
     this.loadedProbas = 0;
     this.getProbas();
   }
