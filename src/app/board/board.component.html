@@ -2,21 +2,28 @@
 <div class="side-menu">
   <h2 class="mat-h2">Ships</h2>
 
-  <div class="ship"
-    *ngFor="let ship of ships"
-    [style.width.px]="ship.width"
-    [style.height.px]="ship.height"
-    [style.background]="ship.color"
-    (click)="selectShip(ship)"
-    (dblclick)="rotate(ship)">
-    <div class="mat-body" [style.transform]="'rotate(' + getRotationAngle(ship) + 'deg)'">
-      {{ship.type}}
-    </div>
-  </div>
+  <mat-radio-group>
+    <mat-radio-button *ngFor="let ship of ships" (click)="selectShip(ship)" [value]="ship" color="primary">
+      <div class="ship"
+          [style.width.px]="ship.width"
+          [style.height.px]="ship.height"
+          [style.background]="ship.color"
+          (click)="selectShip(ship)"
+          (dblclick)="rotate(ship)">
+          <div class="mat-body" [style.color]="white" [style.transform]="'rotate(' + getRotationAngle(ship) + 'deg)'">
+            {{ship.type}}
+          </div>
+        </div>
+    </mat-radio-button>
+  </mat-radio-group>
 
   <h2 class="mat-h2">Options</h2>
-  <mat-slide-toggle>Show percentages</mat-slide-toggle>
-  <button mat-raised-button color="primary" (click)="restartGame()">Restart</button>
+    <div class="option">
+      <mat-slide-toggle color="primary">Show percentages</mat-slide-toggle>
+    </div>
+    <div class="option">
+      <button mat-raised-button color="primary" (click)="restartGame()">Restart</button>
+    </div>
 </div>
 
 <div class="board">

@@ -5,7 +5,8 @@ import {
   MatGridListModule,
   MatCardModule,
   MatSnackBarModule,
-  MatSlideToggleModule
+  MatSlideToggleModule,
+  MatRadioModule
  } from '@angular/material';
 
  import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -17,7 +18,8 @@ import {
     MatCardModule,
     MatSnackBarModule,
     BrowserAnimationsModule,
-    MatSlideToggleModule
+    MatSlideToggleModule,
+    MatRadioModule
   ],
   exports: [
     MatButtonModule,
@@ -25,7 +27,8 @@ import {
     MatCardModule,
     MatSnackBarModule,
     BrowserAnimationsModule,
-    MatSlideToggleModule
+    MatSlideToggleModule,
+    MatRadioModule
   ],
 
 })

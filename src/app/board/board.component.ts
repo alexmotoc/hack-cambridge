@@ -25,10 +25,10 @@ export class BoardComponent implements OnInit {
   colorMap: string[];
 
   constructor(private http: HttpClient, public snackBar: MatSnackBar) {
-    this.restartGame();
     this.colorMap = [
       '#ffffe0','#ffe3af','#ffc58a','#ffa474','#fa8266','#ed645c','#db4551','#c52940','#aa0e27','#8b0000'
     ];
+    this.restartGame();
   }
 
   restartGame(){
@@ -52,9 +52,7 @@ export class BoardComponent implements OnInit {
 
 
   selectShip(ship){
-    ship.color = "darkblue";
     this.selectedShip = ship;
-
   }
 
   openSnackBar(message: string, action: string) {
