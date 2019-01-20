@@ -33,7 +33,7 @@ export class BoardComponent implements OnInit {
 
   loggedMessages: string[];
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, public snackBar: MatSnackBar) {
     this.colorMap = [
       '#ffffe0','#ffe3af','#ffc58a','#ffa474','#fa8266','#ed645c','#db4551','#c52940','#aa0e27','#8b0000'
     ];
@@ -64,11 +64,14 @@ export class BoardComponent implements OnInit {
     this.finishedGame = false;
     this.loggedMessages = [];
     this.counterMoves = 0;
-    this.getProbas();
+    //this.getProbas();
   }
 
   showprobas(){
     this.showProbas= !this.showProbas;
+    if(!this.loadedProbas){
+      this.getProbas();
+    }
   }
 
   min(a,b){
@@ -78,30 +81,29 @@ export class BoardComponent implements OnInit {
   }
 
   selectShip(ship){
-    ship.color = "darkblue";
     this.selectedShip = ship;
-
   }
 
-  /*openSnackBar(message: string, action: string) {
+  openSnackBar(message: string, action: string) {
     this.snackBar.open(message, action, {
-      duration: 2000,
+      duration: 5000,
     });
-  }*/
+  }
 
   selectTile(tile){
-    this.selectedTile = tile;
+    if(this.placedShips.length<5){
+      this.selectedTile = tile;
 
-    if(this.tryDrop(tile.getId(),this.selectedShip.size, this.selectedShip.orientation)){
-      console.log("Valid");
-      this.selectedShip.head = tile.getId();
-      this.placedShips.push(this.selectedShip);
-      this.ships = this.ships.filter(obj => obj.type !== this.selectedShip.type);
-      this.locatedShip(tile.getId(),this.selectedShip.size, this.selectedShip.orientation);
-    }
-    else {
-      //this.openSnackBar('Invalid move! Try again!', 'Undo');
-      this.logMessage("Invalid positioning! Try again!");
+      if(this.tryDrop(tile.getId(),this.selectedShip.size, this.selectedShip.orientation)){
+        this.selectedShip.head = tile.getId();
+        this.placedShips.push(this.selectedShip);
+        this.ships = this.ships.filter(obj => obj.type !== this.selectedShip.type);
+        this.locatedShip(tile.getId(),this.selectedShip.size, this.selectedShip.orientation);
+      }
+      else {
+        this.openSnackBar('Invalid position! Try again!', '');
+        this.logMessage("Invalid position! Try again!");
+      }
     }
   }
 
@@ -113,26 +115,38 @@ export class BoardComponent implements OnInit {
     return "("+row+","+col+")";
   }
 
+
+  sunk(ship){
+    this.hits.forEach(function(hit) {
+      if(ship.orientation==1 && ship.head<=hit.id && hit.id<ship.head+ship.size)
+        hit.hit = 0;
+      if(ship.orientation==0 && ship.head%10==hit.id%10 && Math.floor(ship.head/10)<=Math.floor(hit.id/10) && Math.floor(hit.id/10)<Math.floor(ship.head/10)+ship.size){
+        hit.hit=0;
+      }
+    });
+  }
+
   getHit(id){
     let didHit = 0;
     let survivingships = 0;
     let bindthis = this;
-    console.log(this.placedShips);
-    console.log("ships^");
-    console.log(id);
     this.placedShips.forEach(function(ship) {
       if(ship.orientation==1 && ship.head<=id && id<ship.head+ship.size &&ship.remainingTiles>0){
         bindthis.logMessage("We have been hit at " + bindthis.getPrettyCoords(id) + "!");
         ship.remainingTiles--;
-        if(ship.remainingTiles==0)
-          bindthis.logMessage("Ship is down!")
+        if(ship.remainingTiles==0){
+          bindthis.logMessage("Ship is down!");
+          this.sunk(ship);
+        }
         didHit = 1;
       }
-      if(ship.orientation==0 && ship.head%10==id%10 && Math.floor(ship.head/10)<=Math.floor(id/10) && Math.floor(id/10)<Math.floor(ship.head/10)+ship.size){
+      if(ship.orientation==0 && ship.head%10==id%10 && Math.floor(ship.head/10)<=Math.floor(id/10) && Math.floor(id/10)<Math.floor(ship.head/10)+ship.size && ship.remainingTiles>0){
         bindthis.logMessage("We have been hit at " + bindthis.getPrettyCoords(id) + "!");
         ship.remainingTiles--;
-        if(ship.remainingTiles==0)
+        if(ship.remainingTiles==0){
           bindthis.logMessage("Ship is down!")
+          this.sunk(ship);
+        }
         didHit = 1;
       }
       if(ship.remainingTiles>0){
@@ -142,7 +156,7 @@ export class BoardComponent implements OnInit {
       this.tileList[id].val = 0;
       this.hits.push(new Bomb(id,didHit));
       if(survivingships==0){
-        this.logMessage("All ships are down. We lost.")
+        this.logMessage("All ships are down. We lost :( !")
         this.finishedGame = true;
       }
       return didHit;
@@ -160,12 +174,11 @@ export class BoardComponent implements OnInit {
   }
 
   logMessage(m){
-    console.log(m);
+    this.openSnackBar(m,'');
     this.loggedMessages.push(m);
   }
 
   calculateNextMove(){
-    console.log("getting move");
     let max = -1;
     let imax = -1;
     for(let i=0;i<10*10;i++){
@@ -185,6 +198,9 @@ export class BoardComponent implements OnInit {
     if(this.ships.length>0){
       this.logMessage("Please put all ships on the board before playing.");
     }
+    else if(this.finishedGame){
+      this.logMessage("The game is finished!");
+    }
     else{
 
       //console.log("next move:");
@@ -196,15 +212,23 @@ export class BoardComponent implements OnInit {
     }
   }
 
-  getProbaVal(item, id){
-    if(this.getColour(item, id) == 2)
+  /*getProbaVal(item, id){
+    if(this.getColour(parseFloat(item), parseInt(id)) == "green")
       return 100;
-    return Math.min((item*100).toFixed(2),100)
-  }
+    return Math.min((parseFloat(item)*100).toFixed(2),100);
+  }*/
 
   getProbas(){
     const options = {headers: {'Content-Type': 'application/json'}};
-    let data = this.hits;
+    let sizes = [];
+    this.placedShips.forEach(function(ship){
+      if(ship.remainingTiles>0)
+        sizes.push(ship.size);
+    });
+    //this.hits= [new Bomb(0,0), new Bomb(1,0)];
+    let data = {'hits':this.hits,'boats':sizes};
+    console.log("SENDING DATA...");
+    console.log(data);
     let url = "http://localhost:8080/calculate";
     this.http.post(url, JSON.stringify(data), options).subscribe(
         (t) => { this.loadedProbas=1; this.probasBoard = t['probs']; this.nextMoveId = this.calculateNextMove();}
@@ -224,7 +248,7 @@ export class BoardComponent implements OnInit {
       return "grey";
     if(alreadyhit == 2)
       return "green";
-    return this.colorMap[(Math.floor(proba * 10)) % 10];
+    return this.colorMap[(Math.floor(Math.min(proba, 99) / 10))];
   }
 
   locatedShip(tileID,shipSize,orientation){
@@ -285,7 +309,6 @@ export class BoardComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.getProbas();
   }
 
 }

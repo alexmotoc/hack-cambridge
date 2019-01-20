@@ -6,7 +6,8 @@ import {
   MatCardModule,
   MatSnackBarModule,
   MatSlideToggleModule,
-  MatDialogModule
+  MatDialogModule,
+  MatRadioModule
  } from '@angular/material';
 
  import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -19,7 +20,8 @@ import {
     MatSnackBarModule,
     BrowserAnimationsModule,
     MatSlideToggleModule,
-    MatDialogModule
+    MatDialogModule,
+    MatRadioModule
   ],
   exports: [
     MatButtonModule,
@@ -28,7 +30,8 @@ import {
     MatSnackBarModule,
     BrowserAnimationsModule,
     MatSlideToggleModule,
-    MatDialogModule
+    MatDialogModule,
+    MatRadioModule
   ],
 
 })
