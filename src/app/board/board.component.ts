@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import { HttpClient } from '@angular/common/http';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar, MatDialogModule } from '@angular/material';
 
 
 @Component({
@@ -26,6 +26,8 @@ export class BoardComponent implements OnInit {
   loadedProbas: number = 0;
   showProbas: boolean = false;
   nextMoveId: number = 0;
+  finishedGame: boolean = false;
+  counterMoves: number = 0;
 
   colorMap: string[];
 
@@ -59,7 +61,9 @@ export class BoardComponent implements OnInit {
     this.hits = [];
     this.showProbas = false;
     this.probasBoard = [];
+    this.finishedGame = false;
     this.loggedMessages = [];
+    this.counterMoves = 0;
     this.getProbas();
   }
 
@@ -67,6 +71,11 @@ export class BoardComponent implements OnInit {
     this.showProbas= !this.showProbas;
   }
 
+  min(a,b){
+    if(a<b)
+      return a;
+    return b;
+  }
 
   selectShip(ship){
     ship.color = "darkblue";
@@ -108,6 +117,9 @@ export class BoardComponent implements OnInit {
     let didHit = 0;
     let survivingships = 0;
     let bindthis = this;
+    console.log(this.placedShips);
+    console.log("ships^");
+    console.log(id);
     this.placedShips.forEach(function(ship) {
       if(ship.orientation==1 && ship.head<=id && id<ship.head+ship.size &&ship.remainingTiles>0){
         bindthis.logMessage("We have been hit at " + bindthis.getPrettyCoords(id) + "!");
@@ -116,7 +128,7 @@ export class BoardComponent implements OnInit {
           bindthis.logMessage("Ship is down!")
         didHit = 1;
       }
-      if(ship.orientation==0 && ship.head%10==id%10 && ship.head/10<=id && id<ship.head/10+ship.size){
+      if(ship.orientation==0 && ship.head%10==id%10 && Math.floor(ship.head/10)<=Math.floor(id/10) && Math.floor(id/10)<Math.floor(ship.head/10)+ship.size){
         bindthis.logMessage("We have been hit at " + bindthis.getPrettyCoords(id) + "!");
         ship.remainingTiles--;
         if(ship.remainingTiles==0)
@@ -131,6 +143,7 @@ export class BoardComponent implements OnInit {
       this.hits.push(new Bomb(id,didHit));
       if(survivingships==0){
         this.logMessage("All ships are down. We lost.")
+        this.finishedGame = true;
       }
       return didHit;
   }
@@ -168,11 +181,25 @@ export class BoardComponent implements OnInit {
   }
 
   nextMove(){//actually perform next move
-    console.log("next move:");
-    //console.log(this.nextMoveId);
-    this.getHit(this.nextMoveId);
-    this.loadedProbas = 0;
-    this.getProbas();
+
+    if(this.ships.length>0){
+      this.logMessage("Please put all ships on the board before playing.");
+    }
+    else{
+
+      //console.log("next move:");
+      //console.log(this.nextMoveId);
+      this.counterMoves ++;
+      this.getHit(this.nextMoveId);
+      this.loadedProbas = 0;
+      this.getProbas();
+    }
+  }
+
+  getProbaVal(item, id){
+    if(this.getColour(item, id) == 2)
+      return 100;
+    return Math.min((item*100).toFixed(2),100)
   }
 
   getProbas(){
