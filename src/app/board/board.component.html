@@ -18,15 +18,16 @@
     </mat-radio-group>
 
     <h2 class="mat-h2">Moves counter: {{counterMoves}}</h2>
+    <h2 class="mat-h2">Ships remaining: {{survivingShips}}</h2>
     <h2 class="mat-h2">Options</h2>
       <div class="option">
         <mat-slide-toggle [(checked)]="showProbas" (change)="showprobas()" color="primary">Show percentages</mat-slide-toggle>
       </div>
       <div class="option">
-        <button mat-raised-button color="primary" (click)="restartGame()">Restart</button>
+        <button mat-raised-button color="primary" (click)="nextMove()">Move</button>
       </div>
       <div class="option">
-        <button mat-raised-button color="primary" (click)="nextMove()">Move</button>
+        <button mat-raised-button color="primary" (click)="restartGame()">Restart</button>
       </div>
   </div>
 
