@@ -1,7 +1,6 @@
 
 <div class="side-menu">
-  <button (click)="restartGame()">Restart</button>
-  <mat-slide-toggle (change)="showprobas()">Slide</mat-slide-toggle>
+  <h2 class="mat-h2">Ships</h2>
 
   <div class="ship"
     *ngFor="let ship of ships"
@@ -10,10 +9,14 @@
     [style.background]="ship.color"
     (click)="selectShip(ship)"
     (dblclick)="rotate(ship)">
-    <div [style.transform]="'rotate(' + getRotationAngle(ship) + 'deg)'">
+    <div class="mat-body" [style.transform]="'rotate(' + getRotationAngle(ship) + 'deg)'">
       {{ship.type}}
     </div>
   </div>
+
+  <h2 class="mat-h2">Options</h2>
+  <mat-slide-toggle (change)="showprobas()">Show percentages</mat-slide-toggle>
+  <button mat-raised-button color="primary" (click)="restartGame()">Restart</button>
 </div>
 
 <div class="board" *ngIf="!showProbas">

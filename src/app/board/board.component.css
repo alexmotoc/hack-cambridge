@@ -12,6 +12,10 @@
   /* transform-origin: top left */
 }
 
+.ship:hover {
+  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+
 .side-menu{
   width:20%;
   height:100%;
