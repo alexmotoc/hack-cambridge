@@ -25,7 +25,9 @@ export class BoardComponent implements OnInit {
 
   probasBoard: number[] = [];
   loadedProbas: number = 0;
+  loadedProbasB: boolean = false;
   showProbas: boolean = false;
+  useKeanu: boolean = false;
   nextMoveId: number = 0;
   finishedGame: boolean = false;
   counterMoves: number = 0;
@@ -37,8 +39,8 @@ export class BoardComponent implements OnInit {
 
   constructor(private http: HttpClient, public snackBar: MatSnackBar) {
     this.colorMap = colormap({
-        colormap: 'viridis',
-        nshades: 100,
+        colormap: 'cubehelix',
+        nshades: 150,
         format: 'hex',
         alpha: 1
     });
@@ -63,6 +65,7 @@ export class BoardComponent implements OnInit {
     // this.hits = [];
     this.placedShips = [];
     this.loadedProbas = 0;
+    this.loadedProbasB = false;
     this.hits = [];
     this.showProbas = false;
     this.probasBoard = [];
@@ -71,15 +74,29 @@ export class BoardComponent implements OnInit {
     this.finishedGame = false;
     this.loggedMessages = [];
     this.counterMoves = 0;
-    this.survivingships = 0;
+    this.survivingShips = 0;
+    this.useKeanu = false;
+
+    console.log(this.colorMap);
     //this.getProbas();
+  }
+
+  makeBool(i){
+    if(i==0)
+      return false;
+    return true;
   }
 
   showprobas(){
     this.showProbas= !this.showProbas;
-  /*  if(!this.loadedProbas){
-      this.getProbas();
-    }*/
+  }
+
+  toggleKeanu(){
+    if(this.useKeanu == true)
+      this.useKeanu = false;
+    else
+      this.useKeanu = true;
+    this.getProbas();
   }
 
   min(a,b){
@@ -94,7 +111,7 @@ export class BoardComponent implements OnInit {
 
   openSnackBar(message: string, action: string) {
     this.snackBar.open(message, action, {
-      duration: 5000,
+      duration: 5000 ,verticalPosition: 'bottom', horizontalPosition: 'start'
     });
   }
 
@@ -111,6 +128,7 @@ export class BoardComponent implements OnInit {
         this.ships = this.ships.filter(obj => obj.type !== this.selectedShip.type);
         this.locatedShip(tile.getId(),this.selectedShip.size, this.selectedShip.orientation);
         this.survivingShips ++;
+        this.selectedShip =  null;
       }
       else {
         this.openSnackBar('Invalid position! Try again!', '');
@@ -137,6 +155,16 @@ export class BoardComponent implements OnInit {
         hit.hit=0;
       }
     });
+  }
+
+
+  inship(ship,id){
+    if(ship.orientation==1 && ship.head<=id && id<ship.head+ship.size)
+      return true;
+    if(ship.orientation==0 && ship.head%10==id%10 && Math.floor(ship.head/10)<=Math.floor(id/10) && Math.floor(id/10)<Math.floor(ship.head/10)+ship.size)
+      return true;
+    return false;
+
   }
 
   getHit(id){
@@ -231,6 +259,7 @@ export class BoardComponent implements OnInit {
       this.counterMoves ++;
       this.getHit(this.nextMoveId);
       this.loadedProbas = 0;
+      this.loadedProbasB = false;
       this.getProbas();
     }
   }
@@ -249,13 +278,42 @@ export class BoardComponent implements OnInit {
         sizes.push(ship.size);
     });
     //this.hits= [new Bomb(0,0), new Bomb(1,0)];
-    let data = {'hits':this.hits,'boats':sizes};
+    let k = 0;
+    if(this.useKeanu)
+      k=1;
+    let data = {'hits':this.hits,'boats':sizes,'keanu':k};
     console.log("SENDING DATA...");
     console.log(data);
     let url = "http://localhost:8080/calculate";
+    this.loadedProbas = 0;
+    this.loadedProbasB = false;
     this.http.post(url, JSON.stringify(data), options).subscribe(
-        (t) => { this.loadedProbas=1; this.probasBoard = t['probs']; this.nextMoveId = this.calculateNextMove();}
+        (t) => { this.loadedProbas=1; this.loadedProbasB=true; this.probasBoard = t['probs']; this.nextMoveId = this.calculateNextMove();}
     );
+  }
+
+  getBorder(id){
+
+    if(this.tileList[id].val)
+      return "2px solid black";
+
+  /*  let bindthis = this;
+    this.placedShips.forEach(function(sh) {
+        if(sh.remainingTiles == 0 && bindthis.inship(sh,id))
+          return "2px solid black";
+      });*/
+    return "0px";
+  }
+
+
+  getImg(id){
+    let bindthis = this;
+    let imgpath = "---";
+      this.placedShips.forEach(function(sh) {
+          if(sh.remainingTiles == 0 && bindthis.inship(sh,id))
+            imgpath = "url(cross.png)";
+        });
+      return imgpath;
   }
 
   getColour(proba,id) {
@@ -267,14 +325,50 @@ export class BoardComponent implements OnInit {
       if(bomb.id == id && bomb.hit==1)
         alreadyhit = 2;
     });
+
+    let bindthis = this;
+    this.placedShips.forEach(function(sh) {
+      if(sh.remainingTiles == 0 && bindthis.inship(sh,id))
+        alreadyhit = 3; //from sunken ship
+    });
+
+
+    if(alreadyhit == 1)
+      return "lightgrey";
+    if(alreadyhit == 2)
+      return "lightpink";
+    if(alreadyhit == 3)
+      return "grey";
+    return this.colorMap[149 - Math.floor(proba)];
+  }
+
+  getCross(proba,id) {
+    let alreadyhit = 0; //0 never tried, 1 tried and missed, 2 tried and scored
+
+    this.hits.forEach(function(bomb) {
+      if(bomb.id == id && bomb.hit==0)
+        alreadyhit = 1;
+      if(bomb.id == id && bomb.hit==1)
+        alreadyhit = 2;
+    });
+
+    let bindthis = this;
+    this.placedShips.forEach(function(sh) {
+      if(sh.remainingTiles == 0 && bindthis.inship(sh,id))
+        alreadyhit = 3; //from sunken ship
+    });
+
+
     if(alreadyhit == 1)
       return "grey";
     if(alreadyhit == 2)
-      return "green";
-    return this.colorMap[Math.min(proba, 99)];
+      return "white";
+    if(alreadyhit == 3)
+      return "white";
+    return "pink";
   }
 
-  locatedShip(tileID,shipSize,orientation){
+  locatedShip (tileID,shipSize,orientation){
 
     if(orientation == 1){//horisontal to the right
           for(let i = tileID; i<tileID+shipSize; i++){
@@ -304,7 +398,7 @@ export class BoardComponent implements OnInit {
         return false;
     }
     if(orientation == 0){//vertical downwards
-      if( tileID/10+shipSize < 10){
+      if( Math.floor(tileID/10)+shipSize -1 < 10){
           let i = tileID;
           for(let cnt = 0; cnt<shipSize; cnt++ ){
             if(this.tileList[i].val != 0 )
@@ -332,6 +426,7 @@ export class BoardComponent implements OnInit {
   }
 
   ngOnInit() {
+    console.log(this.loadedProbasB);
   }
 
 }

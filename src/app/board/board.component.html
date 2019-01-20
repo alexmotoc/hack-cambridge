@@ -1,6 +1,9 @@
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+     rel="stylesheet">
+
 <div class="game-container">
   <div class="side-menu">
-    <h2 class="mat-h2" *ngIf="(placedShips.length<5)">Ships</h2>
+    <h2 class="mat-h2" *ngIf="(placedShips.length<5)">Ships <p class="in" > - double click to rotate</p></h2>
 
     <mat-radio-group>
       <mat-radio-button *ngFor="let ship of ships" (click)="selectShip(ship)" [value]="ship" color="primary">
@@ -24,12 +27,19 @@
         <mat-slide-toggle [(checked)]="showProbas" (change)="showprobas()" color="primary">Show percentages</mat-slide-toggle>
       </div>
       <div class="option">
+        <mat-slide-toggle [(checked)]="useKeanu" (change)="toggleKeanu()" color="primary">Keanu?</mat-slide-toggle>
+      </div>
+      <div class="option">
         <button mat-raised-button color="primary" (click)="nextMove()">Move</button>
       </div>
       <div class="option">
         <button mat-raised-button color="primary" (click)="restartGame()">Restart</button>
       </div>
   </div>
+
+  <div class="loading-container" *ngIf="((!loadedProbasB)&&useKeanu)">
+   <div class="box rotate"></div>
+ </div>
 
   <div class="board" *ngIf="!showProbas">
     <mat-grid-list cols=10 rowHeight=50>
@@ -40,14 +50,10 @@
 
 <div class="board" *ngIf="showProbas">
   <mat-grid-list cols=10 rowHeight=50>
-    <mat-grid-tile colspan=1 rowspan=1 [style.background]="getColour(min((item*100).toFixed(2),100),i)" *ngFor="let item of probasBoard; index as i;" (click)="selectTile(item)">{{min((item*100).toFixed(2),100)}}%
+    <mat-grid-tile colspan=1 rowspan=1  [style.background-color]="getColour(min((item*100).toFixed(1),100),i)" [style.border]="getBorder(i)"  *ngFor="let item of probasBoard; index as i;" (click)="selectTile(item)">
+      <p *ngIf="getCross(min((item*100).toFixed(1),100),i) =='pink' " >{{min((item*100).toFixed(0),100)}}%</p>
+        <mat-icon *ngIf="getCross(min((item*100).toFixed(1),100),i) =='white'">close</mat-icon>
+        <mat-icon *ngIf="getCross(min((item*100).toFixed(1),100),i) =='grey'">panorama_fish_eye</mat-icon>
     </mat-grid-tile>
   </mat-grid-list>
-</div>
-
-<div class="log-container" *ngIf="false">
-  <h2 class="mat-h2">Logs</h2>
-  <div class="logs">
-    <p class="mat-body" *ngFor="let message of loggedMessages">[ {{ message }} ]</p>
-  </div>
 </div>
