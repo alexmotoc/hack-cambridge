@@ -20,7 +20,9 @@ export class BoardComponent implements OnInit {
   selectedTile: Tile;
 
   hits: Bomb[] = [];
+
   probasBoard: number[] = [];
+  loadedProbas: number = 0;
   showProbas: number = 0;
 
   constructor(private http: HttpClient) {
@@ -44,6 +46,12 @@ export class BoardComponent implements OnInit {
 
     // this.hits = [];
     this.placedShips = [];
+  }
+
+  showprobas(){
+    this.showProbas= !this.showProbas;
+    console.log("probas");
+    console.log(this.probasBoard);
   }
 
 
@@ -92,7 +100,7 @@ export class BoardComponent implements OnInit {
     console.log(JSON.stringify(data));
     let url = "http://localhost:8080/calculate";
     this.http.post(url, JSON.stringify(data), options).subscribe(
-        (t) => console.log(t)
+        (t) => {console.log(t); this.loadedProbas=1; this.probasBoard = t['probs'];}
     );
   }
 
