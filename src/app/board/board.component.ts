@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material';
 
+let colormap = require('colormap');
 
 @Component({
   selector: 'app-board',
@@ -32,9 +33,12 @@ export class BoardComponent implements OnInit {
   loggedMessages: string[];
 
   constructor(private http: HttpClient, public snackBar: MatSnackBar) {
-    this.colorMap = [
-      '#ffffe0','#ffe3af','#ffc58a','#ffa474','#fa8266','#ed645c','#db4551','#c52940','#aa0e27','#8b0000'
-    ];
+    this.colorMap = colormap({
+        colormap: 'viridis',
+        nshades: 100,
+        format: 'hex',
+        alpha: 1
+    });
     this.restartGame();
   }
 
@@ -194,7 +198,7 @@ export class BoardComponent implements OnInit {
       return "grey";
     if(alreadyhit == 2)
       return "green";
-    return this.colorMap[(Math.floor(proba * 10)) % 10];
+    return this.colorMap[Math.min(proba, 99)];
   }
 
   locatedShip(tileID,shipSize,orientation){
