@@ -1,27 +1,30 @@
-# HackCambridge
+# BattleReeves
+A game of probabilistic battle ships. 
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.2.2.
+## Inspiration
+We heard Improbable's talk on their new probablistic programming language, Keanu, and thought it would be a lot of fun to try it out. We decided to focus on the game Battleships, since it is simple enough to program the graphics and logic in a hackathon, but has lots of hidden state to apply probabilistic programming on, and far too many configurations to simply brute-force.
 
-## Development server
+## What it does 
+First, the player can position their five ships on the board. The application then allows the player to step through running two different probabilistic AIs to play the game - one using Keanu, and one using more combinatorial heuristics. At each stage, the selected AI rates the probability of one of the player's ships being under each square of the board, based on a uniform prior and its observations of hits and misses so far in the game. The player can click a button to aim at the square rated as most likely and move on to the next turn.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+## How it does it
+The AIs run on a Java backend, and communicate with the frontend via a REST API running on a Spring server. The frontend combines available online components with pure typescript code to create multiple game instances, keep track of valid/invalid states and visualise the probabilities in a dynamic heatmap.
 
-## Code scaffolding
+## Screens 
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+### Place your ships
+![place](https://github.com/alexmotoc/hack-cambridge/blob/master/screens/place.JPG)
 
-## Build
+### Take hits 
+![hits](https://github.com/alexmotoc/hack-cambridge/blob/master/screens/hit.JPG)
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+## Technologies
+* angular.js
+* css
+* html
+* java
+* keanu
+* node.js
+* spring
+* typescript
 
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
